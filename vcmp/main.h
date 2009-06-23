@@ -33,6 +33,14 @@
 #define MAX_NETWORK_PLAYERS	50
 #define MAX_SETTINGS_STRING 128
 
+#ifndef GAME_REVISION
+#define GAME_REVISION "3"
+#endif
+
+#ifndef NETGAME_VERSION
+#define NETGAME_VERSION 3
+#endif
+
 typedef struct _GAME_SETTINGS {
 	BOOL bDebug;
 	BOOL bPlayOnline;
