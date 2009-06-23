@@ -7,7 +7,7 @@ void logprintf(char* format, ...)
 	char buffer[512];
 	vsprintf(buffer, format, ap);
 	va_end(ap);
-	puts(buffer);
+	CConsole::PrintTime(buffer,COLOUR_RED,25);
 }
 
 CRconClient* pRconClient = NULL;
@@ -50,15 +50,15 @@ DWORD WINAPI ConsoleInputThread(void* pParam)
 int main (int argc, char** argv)
 {
 	// Print welcome message.
-	puts("\n VC:MP Command Line Remote Console Client");
-	puts(" ----------------------------------------");
-	puts(" v1.0, 26th Aug 2005\n");
+	logprintf("\n JVCMP Command Line Remote Console Client");
+	logprintf(" ----------------------------------------");
+	logprintf(" v2.0, 23rd June 2009\n");
 
 	// If there's not enough command line args, print usage.
 	if (argc < 3)
 	{
-		puts(" Usage:");
-		puts("   rcon <ip/host> <port> <password>");
+		logprintf(" Usage:");
+		logprintf("   rcon <ip/host> <port> <password>");
 		getc(stdin);
 		exit(0);
 	}

@@ -1,14 +1,3 @@
-/*
-
-	VC:MP Multiplayer Modification
-	Copyright 2004-2005 SA:MP Team
-
-	file:
-		rconclient.cpp
-	desc:
-		Remote Console client.
-
-*/
 
 #include "main.h"
 
@@ -20,7 +9,7 @@ CRconClient::CRconClient(char* szHostOrIp, int iPort, char* szPass)
 	{
 		logprintf("Connection failed.");
 	} else {
-		logprintf("Connecting to %s:%d (%s)...", szHostOrIp, iPort, szPass);
+		logprintf("Connecting to %s:%d...", szHostOrIp, iPort);
 	}
 }
 

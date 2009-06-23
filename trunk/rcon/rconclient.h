@@ -1,18 +1,7 @@
-/*
-
-	VC:MP Multiplayer Modification
-	Copyright 2004-2005 SA:MP Team
-
-	file:
-		rconclient.h
-	desc:
-		Remote Console client header file.
-
-*/
 
 #pragma once
-#ifndef SAMP_RCONCLIENT_H
-#define SAMP_RCONCLIENT_H
+#ifndef _RCONCLIENT_H
+#define _RCONCLIENT_H
 
 class CRconClient
 {
