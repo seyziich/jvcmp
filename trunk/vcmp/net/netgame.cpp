@@ -31,8 +31,6 @@ extern CGame		 *pGame;
 extern CChatWindow   *pChatWindow;
 extern CCmdWindow	 *pCmdWindow;
 
-#define NETGAME_VERSION 6
-
 //----------------------------------------------------
 
 BYTE GetPacketID(Packet *p)

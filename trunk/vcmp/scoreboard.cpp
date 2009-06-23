@@ -47,8 +47,7 @@ void CScoreBoard::Draw()
 	char * t;
 	char * szNick;
 
-	sprintf(szScoreWrite,"VC-MP dev-shot release 0.1 - %s:%s\n\n",
-		    tSettings.szConnectHost,tSettings.szConnectPort);
+	sprintf(szScoreWrite,"JVCMP Revision %s\n\n",GAME_REVISION);
 	strcat(szScoreBuf,szScoreWrite);
 
 	sprintf(szScoreWrite,"Player\t\t\tScore\t\tPing\n\n");

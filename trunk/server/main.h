@@ -5,6 +5,14 @@
 #ifndef _MAIN_H_
 #define _MAIN_H_
 
+#ifndef GAME_REVISION
+#define GAME_REVISION "3"
+#endif
+
+#ifndef NETGAME_VERSION
+#define NETGAME_VERSION 3
+#endif
+
 #include <string.h>
 #include <math.h>
 
