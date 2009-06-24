@@ -1130,6 +1130,26 @@
 				</File>
 			</Filter>
 		</Filter>
+		<Filter
+			Name="hooking"
+			>
+			<File
+				RelativePath=".\hooking\Hooks.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\hooking\Hooks.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hooking\HookSystem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\hooking\HookSystem.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="main.cpp"
 			>
