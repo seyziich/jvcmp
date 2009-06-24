@@ -29,6 +29,7 @@ public:
 
 	BOOL New(BYTE bytePlayerID, PCHAR szPlayerName);
 	BOOL Delete(BYTE bytePlayerID, BYTE byteReason);
+	int GetTotalPlayers(BYTE byteExcludePlayerID);
 		
 	// Retrieve a player
 	CPlayer* GetAt(BYTE bytePlayerID) {

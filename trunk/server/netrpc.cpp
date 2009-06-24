@@ -1,28 +1,4 @@
-//----------------------------------------------------
-//
-// GPL code license:
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-//
-//----------------------------------------------------
-//
-// VC:MP Multiplayer Modification For GTA:VC
-// Copyright 2004-2005 SA:MP team
-//
-// File Author: kyeman
-//
-//----------------------------------------------------
+// File Author: kyeman && JackPowell
 
 #include "netgame.h"
 #include "rcon.h"
@@ -40,10 +16,6 @@ extern CRcon			*pRcon;
 #define REJECT_REASON_BAD_NICKNAME  2
 
 void FilterInvalidNickChars(PCHAR szString);
-
-//----------------------------------------------------
-// Sent by a client who's wishing to join us in our
-// multiplayer-like activities.
 
 void ClientJoin(PCHAR Data, int iBitLength, PlayerID sender)
 {
@@ -107,28 +79,15 @@ void ClientJoin(PCHAR Data, int iBitLength, PlayerID sender)
 	bsInitGame.Write(bytePlayerID);
 	pRak->RPC("InitGame",&bsInitGame,HIGH_PRIORITY,RELIABLE_ORDERED,0,sender,FALSE,FALSE);
 
-	// Send this client ServerJoins for every existing player
+	// Send every player connected, updated to use 1 packet
 	BYTE x=0;
-	RakNet::BitStream * pbsExistingClient;
-
-	while(x!=MAX_PLAYERS) {
-		if( (pPlayerPool->GetSlotState(x) == TRUE) && 
-			(x != bytePlayerID) ) {
-
-			pbsExistingClient = new RakNet::BitStream();
-
-			pbsExistingClient->Write(x);
-			pbsExistingClient->Write(strlen(pPlayerPool->GetPlayerName(x)));
-			pbsExistingClient->Write(pPlayerPool->GetPlayerName(x),strlen(pPlayerPool->GetPlayerName(x)));
-			pRak->RPC("ServerJoin",pbsExistingClient,HIGH_PRIORITY,RELIABLE_ORDERED,0,sender,FALSE,FALSE);
-	
-			delete pbsExistingClient;
-
-			// Now also spawn the player for them if they're active.
-			CPlayer *pSpawnPlayer = pPlayerPool->GetAt(x);
-			if(pSpawnPlayer->IsActive()) {
-				pSpawnPlayer->SpawnForPlayer(bytePlayerID);
-			}
+	RakNet::BitStream pbsExistingClient;
+	pbsExistingClient.Write(pPlayerPool->GetTotalPlayers(bytePlayerID));
+	while(x<MAX_PLAYERS) {
+		if( (pPlayerPool->GetSlotState(x) == TRUE) && (x != bytePlayerID) ) {
+			pbsExistingClient.Write(x);
+			pbsExistingClient.Write(strlen(pPlayerPool->GetPlayerName(x)));
+			pbsExistingClient.Write(pPlayerPool->GetPlayerName(x),strlen(pPlayerPool->GetPlayerName(x)));
 		}
 		x++;
 	}
@@ -136,11 +95,23 @@ void ClientJoin(PCHAR Data, int iBitLength, PlayerID sender)
 	// Spawn all existing vehicles for player.
 	CVehicle *pVehicle;
 	x=0;
-
 	while(x!=MAX_VEHICLES) {
 		if(pVehiclePool->GetSlotState(x) == TRUE) {
 			pVehicle = pVehiclePool->GetAt(x);
 			if(pVehicle->IsActive()) pVehicle->SpawnForPlayer(bytePlayerID);
+		}
+		x++;
+	}
+
+	//Spawn players that are spawned
+	x=0;
+	while(x<MAX_PLAYERS) {
+		if( (pPlayerPool->GetSlotState(x) == TRUE) && (x != bytePlayerID) ) {
+			// Now also spawn the player for them if they're active.
+			CPlayer *pSpawnPlayer = pPlayerPool->GetAt(x);
+			if(pSpawnPlayer->IsActive()) {
+				pSpawnPlayer->SpawnForPlayer(bytePlayerID);
+			}
 		}
 		x++;
 	}
