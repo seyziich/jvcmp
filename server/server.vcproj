@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="server"
 	ProjectGUID="{2D183013-1420-4F9C-A7ED-3C4EA0E1006B}"
+	RootNamespace="server"
 	TargetFrameworkVersion="0"
 	>
 	<Platforms>

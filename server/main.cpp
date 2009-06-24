@@ -1,4 +1,4 @@
-// File Author: kyeman
+// File Author: kyeman && JackPowell && lucasc190
 
 #ifdef WIN32
 #include <stdio.h>
@@ -28,7 +28,56 @@ int			iLogState=1;
 char		*szAdminPass;
 BOOL		bDisableParkedCars=FALSE;
 BOOL		bDebugMessages=FALSE;
+BOOL		bPrefixTime=FALSE;
 CCarColManager *pCarColManager;
+
+bool bQuitApp = false;
+
+HANDLE hInputThread;
+
+static void ProcessCommand(char* szCommand)
+{
+	if (!strcmp(szCommand,"quit") || !strcmp(szCommand,"exit")) 
+	{
+		bQuitApp = true;
+	}
+	else
+	{
+		logprintf("The command you entered was not recognised!");
+	}
+	//logprintf(szCommand);
+}
+
+static DWORD WINAPI InputThreadMain(LPVOID args)
+{
+	char buf[512];
+	while (true)
+	{
+		DWORD dwRead;
+		ReadConsole(GetStdHandle(STD_INPUT_HANDLE), buf, 255, &dwRead, NULL);
+		if (dwRead > 2)
+		{
+			buf[dwRead-2] = 0;
+			//WaitForSingleObject(hInputThread, INFINITE);
+			ProcessCommand(buf);
+		}
+	}
+    return 0;
+}
+
+static void StartInputThread(void)
+{
+	DWORD threadId;
+	LPVOID value = (LPVOID)10;
+	HANDLE hThread = CreateThread( NULL, 0, InputThreadMain, value, 0, &threadId);
+	hInputThread = hThread;
+}
+
+static void StopInputThread(void)
+{
+	TerminateThread(hInputThread, 0);
+	CloseHandle(hInputThread);
+}
 
 int main (int argc, char* argv[])
 {
@@ -38,9 +87,9 @@ int main (int argc, char* argv[])
 	int iMaxPlayers=0;
 	int iListenPort=0;
 	char *szPass=NULL;
+	char *szGameName=NULL;
 	int iCurrentGame=1;
 	char szConfigFile[512];
-	char szError[256];
 
 	int iFriendlyFireOption;
 	BYTE byteFriendlyFire=0;
@@ -59,17 +108,17 @@ int main (int argc, char* argv[])
 	}
 	if(strlen(szConfigFile) > 32)
 	{
-		fatal_exit("The config file is longer than 32 characters!");
+		fatal_exit("The config file path is longer than 32 characters!");
 	}
 
 	// try and read the config file.
 	if(pServerConfig->ReadFile(szConfigFile) != CCONF_ERR_SUCCESS) {
-		logprintf("Config file %s error!\nCConfig::Error = %s",szConfigFile,pServerConfig->m_szErrorString);
+		logprintf("Config file %s error!\n%s",szConfigFile,pServerConfig->m_szErrorString);
 		fatal_exit("");
 	}
 
-	logprintf("Loading config file %s...",szConfigFile);
-
+	logprintf("Loading config file: %s...",szConfigFile);
+	
 	// get the max players setting
 	if((iMaxPlayers=pServerConfig->GetConfigEntryAsInt("MaxPlayers"))==(-1)) {
 		iMaxPlayers = DEFAULT_MAX_PLAYERS;
@@ -89,8 +138,17 @@ int main (int argc, char* argv[])
 	if(pServerConfig->GetConfigEntryAsBool("DisableParkedCars")==1) {
 		bDisableParkedCars = TRUE;
 	}
-	if(pServerConfig->GetConfigEntryAsBool("EnableDebugMessages")==1) {
-		bDebugMessages = TRUE;
+	#ifdef DEBUG
+		bDebugMessages = TRUE; //Set debug messages on in debug mode
+	#endif
+	
+	// Gamename would only be used when a server browser is made
+	// As the server browser should ping the server with a byte
+	// And server returns the Gamename as bytes.
+	// Server browser could be made in VB.Net
+	szGameName = pServerConfig->GetConfigEntryAsString("GameName");
+	if(!szGameName || !strlen(szGameName)) {
+		fatal_exit("The 'GameName' in the config file must be set.\n");
 	}
 
 	// get the admin pass
@@ -140,27 +198,32 @@ int main (int argc, char* argv[])
 	// create rcon
 	pRcon = new CRcon(iRconPort, szAdminPass, iRconMaxUsers);
 
-	Sleep(1000);
-	system("cls");
-	logprintf("Jack's Vice City Multiplayer server started on port %d.\nMax Players: %d.\n",iListenPort,iMaxPlayers);
+	newline();
+	logprintf("Game Name: %s",szGameName);
+	logprintf("Port: %d",iListenPort);
+	logprintf("Max Players: %d",iMaxPlayers);
+	newline();
+	bPrefixTime = TRUE; //lucasc190: Start prefixing time after this point.
+	logprintf("Jack's Vice City Multiplayer server has successfully started.");
 
-	// Process the network game.
-	while(pNetGame->GetGameState() == GAMESTATE_RUNNING)
+	StartInputThread();
+	while(pNetGame->GetGameState() == GAMESTATE_RUNNING && !bQuitApp)
 	{
 		pNetGame->Process();
-		pRcon->Process();
-
-#ifdef WIN32
+		pRcon->Process(); //Comment this if you don't want the RCon project to work
+//The sleep function is differnt in linux so check
+#ifdef IS_WINDOWS
 		Sleep(5);
 #else
 		usleep(_us2ms(5));
 #endif
 
 	}
-	system("cls");
-	logprintf("Cleanup...\n");
+	logprintf("Cleaning up...");//lucasc190: Fixed spelling, grammar and tense.
+	StopInputThread();
 	delete pRcon;
 	delete pNetGame;
+	logprintf("Good bye...");//lucasc190: Added this to be friendly.
 	return 0;
 }
 
@@ -168,11 +231,20 @@ int main (int argc, char* argv[])
 
 void fatal_exit(char * szError)
 {
-	#ifdef WIN32
-		CConsole::PrintTime("%s\n\nPress ENTER to close.",COLOUR_RED,25,szError);
-		getc(stdin);
+	//Linux does not support the system function or getc function so check if its windows
+	//But you can still output the error because linux consoles can stay open if told so
+	#ifdef IS_WINDOWS
+		CConsole::PrintTime("%s\nPress any key to close...",COLOUR_RED,25,szError);
+		system("pause>nul");
+	#else
+		CConsole::PrintTime(szError,COLOUR_RED,25);
 	#endif
-		exit(1);
+	exit(1);
+}
+
+void newline(void)
+{
+	puts("");
 }
 
 void logprintf(char * format, ...)
@@ -182,17 +254,36 @@ void logprintf(char * format, ...)
 	va_start(args, format);
 	vsprintf(tmp_buf, format, args);
 	va_end(args);
-	//puts(tmp_buf);
-	CConsole::PrintTime(tmp_buf,COLOUR_RED,25);
-	/*
-	char tmp_buf[512];
-	if(iLogState) {
-		va_list args;
-		va_start(args, format);
-		vsprintf(tmp_buf, format, args);
-		va_end(args);
-		puts(tmp_buf);
-	}*/
+	char szReadyBuf[8192] = {0};
+	if (bPrefixTime)
+	{
+		strcat(szReadyBuf,"[");
+		SYSTEMTIME myTime;
+		GetLocalTime(&myTime);
+		char time_buf[512];
+		//lucasc190: Jack, try not to look at the following code; it'll probably confuse you.
+		char* szZ1;
+		char* szZ2;
+		char* szZ3;
+		if (myTime.wHour < 10)
+			szZ1 = "0";
+		else
+			szZ1 = "";
+		if (myTime.wMinute < 10)
+			szZ2 = "0";
+		else
+			szZ2 = "";
+		if (myTime.wSecond < 10)
+			szZ3 = "0";
+		else
+			szZ3 = "";
+		sprintf(time_buf,"%s%d:%s%d:%s%d",szZ1,myTime.wHour,szZ2,myTime.wMinute,szZ3,myTime.wSecond);
+		strcat(szReadyBuf,time_buf);
+		strcat(szReadyBuf,"] ");
+	}
+	strcat(szReadyBuf,tmp_buf);
+	CConsole::PrintTime(szReadyBuf,COLOUR_RED,5);
+	//Sleep(250);
 }
 
 void FilterInvalidNickChars(PCHAR szString)
