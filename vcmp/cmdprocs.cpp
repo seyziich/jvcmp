@@ -2,6 +2,7 @@
 
 #include "main.h"
 #include "game/util.h"
+#include "ped.h"
 
 extern CGame		 *pGame;
 extern CChatWindow   *pChatWindow;
@@ -168,11 +169,16 @@ void cmdSkin(PCHAR szCmd)
 
 void cmdBuild(PCHAR szCmd)
 {
-	if(!tSettings.bDebug) return;
+	//if(!tSettings.bDebug) return;
 
 	CCamera * pGameCamera = pGame->GetCamera();
 	pGameCamera->Restore();
 	pGame->DisplayHud(TRUE);
+	CPlayerPed *pPlayer = pGame->FindPlayerPed();
+	MATRIX4X4 matPlayer;
+	pPlayer->GetMatrix(&matPlayer);
+	CPed* pPed = new CPed(0,(matPlayer.vPos.X - 1.0f), (matPlayer.vPos.Y - 1.0f), matPlayer.vPos.Z,0.0f);
+	//pPed->ShowMarker(1);
 }
 
 //----------------------------------------------------
