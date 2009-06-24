@@ -91,6 +91,19 @@ BOOL CPlayerPool::Delete(BYTE bytePlayerID, BYTE byteReason)
 	return TRUE;
 }
 
+int CPlayerPool::GetTotalPlayers(BYTE byteExcludePlayerID)
+{
+	int x=0;
+	int iTotalPlayers=0;
+	while(x<MAX_PLAYERS) {
+		if( (GetSlotState(x) == TRUE) && (x != byteExcludePlayerID) ) {
+			iTotalPlayers++;
+		}
+		x++;
+	}
+	return x;
+}
+
 void CPlayerPool::Process()
 {
 	BYTE bytePlayerID = 0;

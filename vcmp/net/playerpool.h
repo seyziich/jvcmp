@@ -35,6 +35,7 @@ public:
 
 	BOOL New(BYTE bytePlayerID, PCHAR szPlayerName);
 	BOOL Delete(BYTE bytePlayerID, BYTE byteReason);
+	int GetTotalPlayers(BYTE byteExcludePlayerID);
 
 	CRemotePlayer* GetAt(BYTE bytePlayerID) {
 		if(bytePlayerID > MAX_PLAYERS) { return NULL; }

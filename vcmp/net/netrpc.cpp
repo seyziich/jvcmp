@@ -1,4 +1,4 @@
-// File Author: kyeman
+// File Author: kyeman && JackPowell
 
 #include "../main.h"
 
@@ -12,27 +12,27 @@ extern CNetGame* pNetGame;
 #define REJECT_REASON_BAD_VERSION   1
 #define REJECT_REASON_BAD_NICKNAME  2
 
-//----------------------------------------------------
-// Sent when a client joins the server we're
-// currently connected to.
+//Updated by JackPowell so you send 1 packet for all the players on the server.
 
 void ServerJoin(PCHAR Data, int iBitLength, PlayerID sender)
 {
 	RakNet::BitStream bsData(Data,iBitLength/8,FALSE);
 	CPlayerPool *pPlayerPool = pNetGame->GetPlayerPool();
-	CHAR szPlayerName[MAX_PLAYER_NAME];
-	BYTE bytePlayerID;
-	UINT uiNameLength;
-
-	memset(szPlayerName,0,MAX_PLAYER_NAME);
-
-	bsData.Read(bytePlayerID);
-	bsData.Read(uiNameLength);
-	bsData.Read(szPlayerName,uiNameLength);
-	szPlayerName[uiNameLength] = '\0';
-
-	// Add this client to the player pool.
-	pPlayerPool->New(bytePlayerID, szPlayerName);
+	BYTE x=0;
+	BYTE byteTotalPlayers=0;
+	bsData.Read(byteTotalPlayers);
+	while (x<byteTotalPlayers)
+	{
+		CHAR szPlayerName[MAX_PLAYER_NAME];
+		BYTE bytePlayerID;
+		UINT uiNameLength;
+		memset(szPlayerName,0,MAX_PLAYER_NAME);
+		bsData.Read(bytePlayerID);
+		bsData.Read(uiNameLength);
+		bsData.Read(szPlayerName,uiNameLength);
+		szPlayerName[uiNameLength] = '\0';
+		pPlayerPool->New(bytePlayerID, szPlayerName);
+	}
 }
 
 //----------------------------------------------------
