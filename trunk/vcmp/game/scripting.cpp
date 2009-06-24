@@ -1,24 +1,9 @@
 // PUBLIC DOMAIN
-//----------------------------------------------------------
-//
-// VC:MP Multiplayer Modification For GTA:VC
-// Copyright 2004-2005 SA:MP team
-//
 // File Author: spookie
-//
-//----------------------------------------------------------
 
 //
 //	Taken from spookie's speedo mod.
 //
-
-
-/*
-	file:
-		scripting.cpp
-	desc:
-		This file contains the Vice City scripting engine stuff.
-*/
 
 #include "../main.h"
 
