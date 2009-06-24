@@ -334,6 +334,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ped.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ped.h"
+				>
+			</File>
+			<File
 				RelativePath="game\playerped.cpp"
 				>
 				<FileConfiguration

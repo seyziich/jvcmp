@@ -219,6 +219,11 @@ void CGame::StartGame()
 
 	*(DWORD *)ADDR_MENU = 0;
 	*(DWORD *)ADDR_STARTGAME = 1;
+
+	// Changes CPed::IsPlayer() so it always returns true
+	//*(BYTE *)0x4F4930 = 0xB0;
+	//*(BYTE *)0x4F4931 = 0x01;
+	//*(BYTE *)0x4F4932 = 0xC3;
 }
 
 //-----------------------------------------------------------

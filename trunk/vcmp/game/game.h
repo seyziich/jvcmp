@@ -6,6 +6,7 @@
 #include "common.h"
 #include "vehicle.h"
 #include "playerped.h"
+#include "../ped.h"
 #include "camera.h"
 #include "scripting.h"
 
