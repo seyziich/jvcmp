@@ -1,16 +1,7 @@
 // PUBLIC DOMAIN
-//
 //	Taken from spookie's speedo mod.
-//
 
 #pragma once
-
-/*
-	file:
-		scripting.h
-	desc:
-		This is the header file for GameScripting.cpp.
-*/
 
 #define MAX_SCRIPT_VARS	16	// Size of our variable saving array
 #define MAX_SCRIPT_SIZE	255	// Size of ScriptBuf - Max is really (2+(13*5))
