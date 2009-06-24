@@ -1,4 +1,4 @@
-// File Author: kyeman
+// File Author: kyeman & JackPowell & lucasc190
 
 #pragma once
 
@@ -16,7 +16,7 @@
 #include <string.h>
 #include <math.h>
 
-#if defined( WIN32 ) || defined( _WIN64 ) && !defined( IS_WINDOWS )
+#if defined( WIN32 ) || defined( _WIN32 ) || defined( WIN64 ) || defined( _WIN64 ) && !defined( IS_WINDOWS )
 #define IS_WINDOWS
 #endif
 
@@ -36,6 +36,7 @@
 #include <ctype.h>
 #include <pthread.h>
 
+//Define types for linux that we need
 typedef unsigned char BYTE;
 typedef unsigned long DWORD;
 typedef unsigned short WORD;
@@ -60,6 +61,8 @@ typedef int HANDLE;
 #include "CarCols.h"
 #include "../tinyxml/tinyxml.h"
 
+//These the are default config options
+//The server uses these if they don't exist in the server.conf
 #define DEFAULT_VEHICLES_FILE "vehicles.xml"
 #define DEFAULT_CONFIG_FILE "server.conf"
 #define DEFAULT_MAX_PLAYERS 32
@@ -68,5 +71,6 @@ typedef int HANDLE;
 #define DEFAULT_RCON_MAXUSERS	8
 
 void logprintf(char * format, ...);
+void newline(void);
 
 #endif
