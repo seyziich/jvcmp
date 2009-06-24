@@ -494,42 +494,6 @@ NUDE HookedRand_Hook()
 
 #define NO_TEAM 255
 
-BOOL _stdcall IsFriendlyFire(PED_TYPE *pPlayer,DWORD *pdwEnt, int iWeapon, float fUnk, int PedPiece, BYTE byteUnk)
-{
-	CPlayerPool *pPlayerPool;
-	CRemotePlayer *pRemotePlayer;
-	CLocalPlayer *pLocalPlayer;
-	BYTE byteRemotePlayerID;
-	BYTE byteLocalPlayerTeam;
-
-	if(pPlayer == GamePool_FindPlayerPed()) {
-		if(pNetGame && pNetGame->m_byteFriendlyFire) {
-			
-			pPlayerPool = pNetGame->GetPlayerPool();
-			pLocalPlayer = pPlayerPool->GetLocalPlayer();
-			byteLocalPlayerTeam = pLocalPlayer->GetTeam();
-
-			if(pLocalPlayer->IsWasted() || (byteLocalPlayerTeam == NO_TEAM)) return FALSE;
-
-			byteRemotePlayerID = pPlayerPool->FindRemotePlayerIDFromGtaPtr((PED_TYPE *)pdwEnt);
-
-			if(byteRemotePlayerID != INVALID_PLAYER_ID) {
-				pRemotePlayer = pPlayerPool->GetAt(byteRemotePlayerID);
-				if(pRemotePlayer->GetTeam() == byteLocalPlayerTeam) {
-					return TRUE;
-				} else {
-					return FALSE;
-				}
-			}
-
-			// didn't find pdwEnt in the player pool.
-			// this is where we could check for a vehicle.
-		}
-	}
-
-	return FALSE;	
-}
-
 //-----------------------------------------------------------
 
 NUDE CPed_InflictDamageHook()
@@ -550,12 +514,12 @@ NUDE CPed_InflictDamageHook()
 
 	if(pNetGame) {
 
-		if(IsFriendlyFire(_pPlayer,_pEntity,_iWeapon,_fUnk,_iPedPieces,_byteUnk)) {
+		/*if(IsFriendlyFire(_pPlayer,_pEntity,_iWeapon,_fUnk,_iPedPieces,_byteUnk)) {
 			_asm popad
 			_asm mov esp, dwStackFrame
 			_asm xor al, al
 			_asm retn 0x14
-		}
+		}*/
 
 		/*
 		if(_pPlayer == GamePool_FindPlayerPed()) {
@@ -608,8 +572,8 @@ void InstallHook( DWORD dwInstallAddress,
 
 void GameInstallHooks()
 {	
-	InstallHook(0x6499F0,(DWORD)HookedRand_Hook,0x6499E8,HookedRand_HookJmpCode,
-		sizeof(HookedRand_HookJmpCode));
+	//InstallHook(0x6499F0,(DWORD)HookedRand_Hook,0x6499E8,HookedRand_HookJmpCode,
+		//sizeof(HookedRand_HookJmpCode));
 
 	// Below is the Render2DStuff hook, don't be confused by the poor naming.
 	InstallHook(ADDR_PRE_GAME_PROCESS,(DWORD)PreGameProcessHook,
@@ -636,11 +600,11 @@ void GameInstallHooks()
 		ADDR_SET_OBJECTIVE_STORAGE,PedSetObjective_HookJmpCode,sizeof(PedSetObjective_HookJmpCode));*/
 								
 	// Install Hook for RadarTranslateColor
-	InstallHook(0x4C3050,(DWORD)RadarTranslateColor,0x4C3044,
-		RadarTranslateColor_HookJmpCode,sizeof(RadarTranslateColor_HookJmpCode));
+	//InstallHook(0x4C3050,(DWORD)RadarTranslateColor,0x4C3044,
+		//RadarTranslateColor_HookJmpCode,sizeof(RadarTranslateColor_HookJmpCode));
 	
-	InstallHook(0x525B20,(DWORD)CPed_InflictDamageHook,0x525B15,
-		InflictDamage_HookJmpCode,sizeof(InflictDamage_HookJmpCode));
+	//InstallHook(0x525B20,(DWORD)CPed_InflictDamageHook,0x525B15,
+	//	InflictDamage_HookJmpCode,sizeof(InflictDamage_HookJmpCode));
 
 	// Install Hook for enter car animation callback..
 	// Update: Causing even more problems.
