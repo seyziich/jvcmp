@@ -43,9 +43,14 @@ void cmdDefaultCmdProc(PCHAR szCmd)
 void cmdQuit(PCHAR szCmd)
 {
 	if(pNetGame && pNetGame->GetGameState() == GAMESTATE_CONNECTED) {
-		pNetGame->GetRakClient()->Disconnect(0);
+		pNetGame->GetRakClient()->Disconnect(100);
 	}
-
+	delete pNetGame;
+	DWORD dwTicksEnd =  GetTickCount()+500;
+	while (GetTickCount() < dwTicksEnd)
+	{
+		Sleep(30);
+	}
 	ExitProcess(0);
 }
 
