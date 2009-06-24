@@ -49,25 +49,12 @@ BYTE byteEnablePadKeyBuf[] = {0x66,0xC7,0x04,0x5D,0x18,0x4A,0x86,0x00,0xFF,0x00}
 
 void CGame::ToggleKeyInputsDisabled(BOOL bDisable)
 {
-	DWORD oldProt, oldProt2;
-
 	if(bDisable == FALSE) {
-		VirtualProtect((PVOID)0x602BDD,10,PAGE_EXECUTE_READWRITE,&oldProt);
 		memcpy((PVOID)0x602BDD,byteEnablePadKeyBuf,10);
-		VirtualProtect((PVOID)0x602BDD,10,oldProt,&oldProt2);
-
-		VirtualProtect((PVOID)0x601349,5,PAGE_EXECUTE_READWRITE,&oldProt);
 		memcpy((PVOID)0x601349,byteEnableInput2,5);
-		VirtualProtect((PVOID)0x601349,5,oldProt,&oldProt2);
-
 	} else { // TRUE
-		VirtualProtect((PVOID)0x602BDD,10,PAGE_EXECUTE_READWRITE,&oldProt);
 		memset((PVOID)0x602BDD,0x90,10);
-		VirtualProtect((PVOID)0x602BDD,10,oldProt,&oldProt2);
-
-		VirtualProtect((PVOID)0x601349,5,PAGE_EXECUTE_READWRITE,&oldProt);
 		memcpy((PVOID)0x601349,byteDisableInput,5);
-		VirtualProtect((PVOID)0x601349,5,oldProt,&oldProt2);
 	}	
 }
 
@@ -85,6 +72,10 @@ void CGame::StartGame()
 	GameAimSyncInit();
 	
 	SetUnhandledExceptionFilter(exc_handler);
+
+	// ToggleKeyInputsDisabled unprotected here
+	VirtualProtect((PVOID)0x602BDD,10,PAGE_EXECUTE_READWRITE,NULL);
+	VirtualProtect((PVOID)0x601349,5,PAGE_EXECUTE_READWRITE,NULL);
 
 	// Patch to prevent game stopping during a pause
 	// (Credits to Luke)
@@ -251,14 +242,17 @@ void CGame::RequestModel(int iModelID)
 
 void CGame::LoadRequestedModels()
 {
-	ScriptCommand(&load_requested_models);
+	_asm push 0
+	_asm mov edx, ADDR_LOAD_REQUESTED_MODELS2
+	_asm call edx
+	_asm pop ecx
 }
 
 //-----------------------------------------------------------
 
 BOOL CGame::IsModelLoaded(int iModelID)
 {
-	if(ScriptCommand(&is_model_available, iModelID)) {
+	if(*(BYTE*)(0x94DDD8 + 0x14*iModelID)==1) {
 		return TRUE;
 	} else {
 		return FALSE;
